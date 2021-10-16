@@ -35,6 +35,7 @@ functions:
     #     - Fn::GetAtt: ['processingservicevpc', 'DefaultSecurityGroup'] 
     handler: src/services/resources/index.handler
     events:
+      - cors: true
       - http: ANY /
       - http: ANY /{proxy+}
     memorySize: 128
