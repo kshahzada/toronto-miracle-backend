@@ -39,6 +39,7 @@ functions:
 
 plugins:
   - serverless-plugin-typescript
-  - serverless-offline
   - serverless-domain-manager
   - serverless-dotenv-plugin
+  - serverless-offline
+
