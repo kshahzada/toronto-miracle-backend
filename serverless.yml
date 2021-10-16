@@ -11,7 +11,7 @@ custom:
     basePath: ''
     stage: ${self:provider.stage}
     # certificateName: 'torontocoffee.club'
-    certificateArn: '	arn:aws:acm:us-east-1:234751040525:certificate/c212c14d-45ba-4750-85d8-a9c5019455f5'
+    certificateArn: 'arn:aws:acm:us-east-1:234751040525:certificate/c212c14d-45ba-4750-85d8-a9c5019455f5'
     createRoute53Record: false
 
 provider:

@@ -1,8 +1,8 @@
 {
-  "name": "server",
-  "version": "0.1.1",
+  "name": "toronto-miracle-backend",
+  "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/services/resources/index.js",
   "scripts": {
     "start": "npx sls offline start  --lambdaPort 5002 --httpPort 5000 --stage local --noPrependStageInUrl",
     "start-watch": "npx nodemon --exec \"npm start \" --ext ts,js,json",
