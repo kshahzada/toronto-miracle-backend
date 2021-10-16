@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx sls offline start --stage local --noPrependStageInUrl",
+    "start": "npx sls offline start  --lambdaPort 5002 --httpPort 5000 --stage local --noPrependStageInUrl",
     "start-watch": "npx nodemon --exec \"npm start \" --ext ts,js,json",
     "test": "npx ts-mocha **/*.*.spec.ts --exit",
     "coverage": "npx nyc --reporter=text --reporter=text-summary --cache false npm test",
