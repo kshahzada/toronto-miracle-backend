@@ -33,7 +33,7 @@ export const read = async (table: string, record_id: string) => {
     });
 }
 
-export const find = async (table: string, filterByFormula: string, fields: string[]|undefined = undefined, sort: Sort[]|undefined, useString: boolean) => {
+export const find = async (table: string, filterByFormula: string, fields: string[]|undefined = undefined, sort: Sort[]|undefined, view: string|undefined, useString: boolean) => {
     const query = useString ? {
         filterByFormula,
         fields,
@@ -45,6 +45,7 @@ export const find = async (table: string, filterByFormula: string, fields: strin
         filterByFormula,
         fields,
         sort,
+        view
     };
     return new Promise((res,rej) => {
         base(table).select(query).firstPage((err, records) => {

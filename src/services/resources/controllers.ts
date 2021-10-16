@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { badRequestError, serverError } from "../../errors";
 import { ILogicResponse } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
-import { healthCheckLogic } from "./logic";
+import { healthCheckLogic, volunteersLogic } from "./logic";
 
 const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErrorResponse) => {
     const { statusCode, responseBody, redirectURL } = logicResponse;
@@ -40,6 +40,18 @@ const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErr
 
 export const healthCheck = async (req: Request, res: Response) => {
     const response = await healthCheckLogic();
+    return sendResponse(res, response);
+};
+
+export const volunteers = async (req: Request, res: Response) => {
+    const { captain_id } = req.params;
+
+    if(captain_id === undefined){
+        const response = serverError("Captain_ID is required");
+        return sendResponse(res, response);
+    }
+
+    const response = await volunteersLogic(captain_id);
     return sendResponse(res, response);
 };
 

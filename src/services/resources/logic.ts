@@ -24,3 +24,16 @@ export const healthCheckLogic = async (): Promise<ILogicResponse> => {
     };
     return response;
 };
+
+export const volunteersLogic = async (captain_id: string): Promise<ILogicResponse> => {
+    // empty filterByFormula for now, replace with captain_id once ready
+    const volunteers = await find("Contacts", "", ["First Name", "Last Name", "Email", "Phone Number"] , [], "Volunteers", false);
+    if (volunteers === undefined){
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: volunteers },
+        statusCode: 200,
+    };
+    return response;
+};
