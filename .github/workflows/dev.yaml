@@ -1,0 +1,31 @@
+name: Deploy Develop Branch
+
+on:
+  push:
+    branches:
+      - 'develop'
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump GitHub context 
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - name: Install Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: Checkout Repo
+      uses: actions/checkout@v1
+    - name: Deploy Application
+      run: |
+        npm install
+        npx sls deploy --stage dev
+      env:
+        AIRTABLE_KEY: ${{ secrets.AIRTABLE_KEY }}
+        AIRTABLE_BASE: appD9b7cylNyzmn32
+        AWS_ACCESS_KEY_ID: AKIATNKCATQGZAJ533O6
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+        AWS_DEFAULT_REGION: us-east-1

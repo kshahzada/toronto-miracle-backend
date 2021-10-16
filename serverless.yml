@@ -1,0 +1,44 @@
+service: Toronto-Miracle
+
+custom:
+  domains:
+    dev: dev-api.torontomiracle.org
+    prod: api.torontomiracle.org
+  customDomain:
+    domainName: ${self:custom.domains.${self:provider.stage}}
+    basePath: ''
+    stage: ${self:provider.stage}
+    # certificateName: 'torontocoffee.club'
+    certificateArn: '	arn:aws:acm:us-east-1:234751040525:certificate/c212c14d-45ba-4750-85d8-a9c5019455f5'
+    createRoute53Record: false
+
+provider:
+  lambdaHashingVersion: 20201221
+  # useDotenv: true
+  apiGateway:
+    shouldStartNameWithService: true
+  name: aws
+  runtime: nodejs12.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    AIRTABLE_BASE: ${env:AIRTABLE_BASE}
+    AIRTABLE_KEY: ${env:AIRTABLE_KEY}
+
+          
+functions:
+  api:
+    # vpc:
+    #   securityGroupIds:
+    #     - Fn::GetAtt: ['processingservicevpc', 'DefaultSecurityGroup'] 
+    handler: src/services/resources/index.handler
+    events:
+      - http: ANY /
+      - http: ANY /{proxy+}
+    memorySize: 128
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+  - serverless-domain-manager
+  - serverless-dotenv-plugin

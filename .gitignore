@@ -1,0 +1,11 @@
+#OS STUFF
+*.DS_Store
+.tmp
+
+# Dev files
+.env
+*.packaged.yaml
+node_modules
+.serverless
+.build
+*.icloud
