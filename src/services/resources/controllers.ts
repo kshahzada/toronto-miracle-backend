@@ -1,6 +1,6 @@
 import Joi from "@hapi/joi";
 import { Request, Response } from "express";
-import { badRequestError, serverError } from "../../errors";
+import { badRequestError, badRequestError } from "../../errors";
 import { ILogicResponse } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
 import { healthCheckLogic, volunteersLogic } from "./logic";
@@ -47,7 +47,7 @@ export const volunteers = async (req: Request, res: Response) => {
     const { captain_id } = req.params;
 
     if(captain_id === undefined){
-        const response = serverError("Captain_ID is required");
+        const response = badRequestError("Captain_ID is required");
         return sendResponse(res, response);
     }
 
