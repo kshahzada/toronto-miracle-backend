@@ -26,6 +26,8 @@ provider:
   environment:
     AIRTABLE_BASE: ${env:AIRTABLE_BASE}
     AIRTABLE_KEY: ${env:AIRTABLE_KEY}
+    accessTokenSecret: ${env:accessTokenSecret}
+
 
           
 functions:

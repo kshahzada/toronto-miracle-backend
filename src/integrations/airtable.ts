@@ -33,23 +33,19 @@ export const read = async (table: string, record_id: string) => {
     });
 }
 
-export const find = async (table: string, filterByFormula: string, fields: string[]|undefined = undefined, sort: Sort[]|undefined, view: string|undefined, useString: boolean) => {
-    const query = useString ? {
-        filterByFormula,
-        fields,
-        sort,
-        cellFormat: 'string',
-        userLocale: 'en-ca',
-        timeZone: 'America/Toronto',
-    } : {
+export const find = async (table: string, filterByFormula?: string, fields?: string[], sort?: Sort[], view?: string) => {
+    const query = {
         filterByFormula,
         fields,
         sort,
         view
     };
+
+    const cleanedQuery = JSON.parse(JSON.stringify(query)); // remove undefined optional parameters
+
     return new Promise((res,rej) => {
-        base(table).select(query).firstPage((err, records) => {
-            console.info(err, records);
+        base(table).select(cleanedQuery).firstPage((err, records) => {
+            // console.info(err, records);
             if (err) {
                 if (err.statusCode === 404){
                     return res(undefined);
@@ -70,18 +66,20 @@ export const find = async (table: string, filterByFormula: string, fields: strin
     });
 }
 
-export const write = async (table, data) => {
-    return new Promise((res,rej) => {
-        base(table).create(data, {typecast: true}, function(err, record) {
-            if (err) {
-              console.error(err);
-              return rej(err);
-            }
-            if (record) {
-                return res(record.fields);
-            }
-            return res(undefined);
-        });
-    })
-}
+// commenting out because this program should READ-ONLY
+
+// export const write = async (table, data) => {
+//     return new Promise((res,rej) => {
+//         base(table).create(data, {typecast: true}, function(err, record) {
+//             if (err) {
+//               console.error(err);
+//               return rej(err);
+//             }
+//             if (record) {
+//                 return res(record.fields);
+//             }
+//             return res(undefined);
+//         });
+//     })
+// }
 

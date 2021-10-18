@@ -8,20 +8,30 @@ import serverless from "serverless-http";
 
 import { prettify } from "../../middlewares/prettify";
 import { router } from "./routes";
+import { auth } from "../../middlewares/auth";
+import { swaggerDoc } from "../../openAPIs/swagger";
+import swaggerUi from "swagger-ui-express";
+
+const { local } = process.env;
 
 export const service = express();
 
 service.use(morgan("combined"));
-service.use(bodyParser.json({limit: "50mb"}));
+service.use(bodyParser.json({ limit: "50mb" }));
 service.use(cookieParser());
-service.use(cors());
+service.use(cors({
+    origin: local ? "/localhost/" : "/\.torontomiracle\.org$/",
+}));
 
 service.use(compression());
 service.use(prettify({ query: "pretty" }));
 
-service.use("/", router);
+service.use(auth);
 
-service.use(function(err, req, res, next) {
+service.use("/docs", swaggerUi.serveWithOptions({ redirect: false }), swaggerUi.setup(swaggerDoc));
+service.use(router);
+
+service.use(function (err, req, res, next) {
     res.end(err.message); // this catches the error!!
 });
 
