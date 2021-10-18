@@ -65,7 +65,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
             options: {
                 maxAge: TOKEN_EXPIRY_TIME * 1000, // convert to ms
                 httpOnly: true,
-                ...(!local && { domain: "*.torontomiracle.org" }), // conditionally set domain if you are not developping locally
+                ...(!local && { domain: "torontomiracle.org" }), // conditionally set domain if you are not developping locally
                 sameSite: "lax"
             }
         },
