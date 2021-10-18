@@ -159,15 +159,29 @@ export const swaggerDoc = {
                     "type": "object",
                     "description": "Response Body",
                     "properties": {
-                      "isLoggedIn": {
-                        "type": "boolean",
-                        "example": true,
-                        "description": "if the user has a valid JWT"
-                      },
-                      "userId": {
+                      "id": {
                         "type": "string",
-                        "description": "The user's record ID",
-                        "example": "recaaQauqQvbPK0uj"
+                        "example": "recaaQauqQvbPK0pi"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "tony@stark.ca"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "Tony"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "Stark"
+                      },
+                      "phoneNumber": {
+                        "type": "string",
+                        "example": 1322342342
+                      },
+                      "isCaptain": {
+                        "type": "boolean",
+                        "example": true
                       }
                     }
                   }

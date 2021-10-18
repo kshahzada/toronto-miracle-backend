@@ -7,9 +7,20 @@ import { resourceNotFoundError, serverError, authenticationFailedError } from ".
 const { accessTokenSecret, local } = process.env;
 const TOKEN_EXPIRY_TIME = 8*60*60; // 8hr in seconds
 
-export const getLoggedInLogic = async (userId?: string) : Promise<ILogicResponse | IErrorResponse> => {
+export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse | IErrorResponse> => {
+    const rawUser: any = await read("contacts", userId); // TODO :- need to actually define the type here
+    const user = {
+        id: rawUser.id, 
+        email: rawUser["Email"], 
+        firstName: rawUser["First Name"], 
+        lastName: rawUser["Last Name"], 
+        phoneNumber: rawUser["Phone Number"],
+        isCaptain: rawUser["isCaptain"], 
+    };
+    console.log({rawUser});
+ 
     const response: ILogicResponse = {
-        responseBody: { isLoggedIn: true, userId },
+        responseBody: user,
         statusCode: 200,
     };
     return response;
