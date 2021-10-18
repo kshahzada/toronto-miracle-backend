@@ -8,6 +8,7 @@ import serverless from "serverless-http";
 
 import { prettify } from "../../middlewares/prettify";
 import { router } from "./routes";
+import { auth } from "../../middlewares/auth";
 
 export const service = express();
 
@@ -19,7 +20,9 @@ service.use(cors());
 service.use(compression());
 service.use(prettify({ query: "pretty" }));
 
-service.use("/", router);
+service.use(auth);
+
+service.use(router);
 
 service.use(function(err, req, res, next) {
     res.end(err.message); // this catches the error!!
