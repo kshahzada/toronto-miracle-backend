@@ -29,3 +29,4 @@ jobs:
         AWS_ACCESS_KEY_ID: AKIATNKCATQGZAJ533O6
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
         AWS_DEFAULT_REGION: us-east-1
+        accessTokenSecret: ${{ accessTokenSecret }}
