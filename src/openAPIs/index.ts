@@ -8,9 +8,6 @@ import path from "path";
 import { swaggerDoc } from "./swagger";
 
 export const openAPIDocs = express.Router();
-openAPIDocs.use('/', swaggerUi.serveWithOptions({ redirect: false }));
-openAPIDocs.get('/', swaggerUi.setup(swaggerDoc));
-// openAPIDocs.use(swaggerUi.serveWithOptions({ redirect: false }), swaggerUi.setup(swaggerDoc));
-
-
+openAPIDocs.use('/docs', swaggerUi.serveWithOptions({ redirect: false }));
+openAPIDocs.get('/docs', swaggerUi.setup(swaggerDoc));
 
