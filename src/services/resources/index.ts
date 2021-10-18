@@ -10,12 +10,19 @@ import { prettify } from "../../middlewares/prettify";
 import { router } from "./routes";
 import { auth } from "../../middlewares/auth";
 
+const { local } = process.env;
+
 export const service = express();
 
 service.use(morgan("combined"));
 service.use(bodyParser.json({limit: "50mb"}));
 service.use(cookieParser());
-service.use(cors());
+service.use(cors({
+    origin: [
+        "/\.torontomiracle\.org$/",
+        local && "/localhost/",
+    ]
+}));
 
 service.use(compression());
 service.use(prettify({ query: "pretty" }));
