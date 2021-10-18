@@ -7,7 +7,7 @@ import { healthCheckLogic, volunteersLogic, getTokenLogic, getLoggedInLogic } fr
 
 const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErrorResponse) => {
     const { statusCode, responseBody } = logicResponse;
-    
+
     if( "cookies" in logicResponse && logicResponse.cookies !== undefined ){
         logicResponse.cookies.forEach((cookie) => {
             expressRes.cookie(cookie.name, cookie.val, cookie.options);
@@ -24,7 +24,7 @@ export const getLoggedIn = async (req: Request, res: Response) => {
 };
 
 export const authenticate = async (req: Request, res: Response) => {
-    
+
     // define schema shapes
     const paramSchema = Joi.object({
         email: Joi.string().email().required(),

@@ -10,15 +10,15 @@ const TOKEN_EXPIRY_TIME = 8*60*60; // 8hr in seconds
 export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse | IErrorResponse> => {
     const rawUser: any = await read("contacts", userId); // TODO :- need to actually define the type here
     const user = {
-        id: rawUser.id, 
-        email: rawUser["Email"], 
-        firstName: rawUser["First Name"], 
-        lastName: rawUser["Last Name"], 
+        id: rawUser.id,
+        email: rawUser.Email,
+        firstName: rawUser["First Name"],
+        lastName: rawUser["Last Name"],
         phoneNumber: rawUser["Phone Number"],
-        isCaptain: rawUser["isCaptain"], 
+        isCaptain: rawUser.isCaptain,
     };
     console.log({rawUser});
- 
+
     const response: ILogicResponse = {
         responseBody: user,
         statusCode: 200,
@@ -41,15 +41,15 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
     }
 
     const matchedUser = {
-        id: matchingUsers[0].id, 
-        email: matchingUsers[0]["Email"], 
-        firstName: matchingUsers[0]["First Name"], 
-        lastName: matchingUsers[0]["Last Name"], 
+        id: matchingUsers[0].id,
+        email: matchingUsers[0].Email,
+        firstName: matchingUsers[0]["First Name"],
+        lastName: matchingUsers[0]["Last Name"],
         phoneNumber: matchingUsers[0]["Phone Number"],
-        isCaptain: matchingUsers[0]["isCaptain"], 
+        isCaptain: matchingUsers[0].isCaptain,
     };
 
-    //if real user doesn't have a matching phone number, send auth error
+    // if real user doesn't have a matching phone number, send auth error
     if(matchedUser.phoneNumber !== phoneNumber || matchedUser.isCaptain !== true){
         return authenticationFailedError();
     }
