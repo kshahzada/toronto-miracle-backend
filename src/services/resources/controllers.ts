@@ -10,7 +10,6 @@ const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErr
     
     if( "cookies" in logicResponse && logicResponse.cookies !== undefined ){
         logicResponse.cookies.forEach((cookie) => {
-            console.log({cookie})
             expressRes.cookie(cookie.name, cookie.val, cookie.options);
         })
     }

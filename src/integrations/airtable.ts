@@ -43,7 +43,6 @@ export const find = async (table: string, filterByFormula?: string, fields?: str
 
     const cleanedQuery = JSON.parse(JSON.stringify(query)); // remove undefined optional parameters
 
-    console.log({cleanedQuery})
     return new Promise((res,rej) => {
         base(table).select(cleanedQuery).firstPage((err, records) => {
             // console.info(err, records);

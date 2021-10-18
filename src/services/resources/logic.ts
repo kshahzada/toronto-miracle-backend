@@ -21,12 +21,12 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
 
     // if more than one user, send server error
     if(matchingUsers.length > 1){
-        serverError("Multiple users found");
+        return serverError("Multiple users found");
     }
 
     // if no user is found, send auth error
     if(matchingUsers.length !== 1){
-        authenticationFailedError();
+        return authenticationFailedError();
     }
 
     const matchedUser = {
@@ -39,8 +39,8 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
     };
 
     //if real user doesn't have a matching phone number, send auth error
-    if(matchingUsers.phoneNumber !== phoneNumber || matchingUsers.isCaptain !== true){
-        authenticationFailedError();
+    if(matchedUser.phoneNumber !== phoneNumber || matchedUser.isCaptain !== true){
+        return authenticationFailedError();
     }
 
     // generate access token

@@ -19,7 +19,6 @@ auth.use("/v1/resources/captains/:captainId", jwt({
         res.status(401).json({ error: "invalid token" });
         return res.end();
     }
-
     next();
 }));
 
@@ -32,7 +31,6 @@ auth.use("/v1/resources/loggedin", jwt({
 
 // catch all invalid tokens as auth errors
 auth.use((err, req, res, next) => {
-    console.log(req.cookies)
     if (err.name === 'UnauthorizedError') {
         res.status(401).json({ error: "invalid token" });
         return res.end();
