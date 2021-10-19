@@ -45,7 +45,7 @@ export const authenticate = async (req: Request, res: Response) => {
 
     // otherwise complete request
     const { email, phoneNumber } = parsedBody;
-    const response = await getTokenLogic(email, phoneNumber);
+    const response = await getTokenLogic(email, phoneNumber, req.hostname);
     return sendResponse(res, response);
 };
 

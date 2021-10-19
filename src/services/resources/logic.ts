@@ -16,7 +16,7 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
         lastName: rawUser["Last Name"],
         phoneNumber: rawUser["Phone Number"],
         isCaptain: rawUser.isCaptain,
-        neighbourhood: rawUser.neighbourhood
+        neighbourhoods: rawUser.neighbourhood
     };
 
     const response: ILogicResponse = {
@@ -26,7 +26,7 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
     return response;
 };
 
-export const getTokenLogic = async (email: string, phoneNumber: string): Promise<ILogicResponse | IErrorResponse> => {
+export const getTokenLogic = async (email: string, phoneNumber: string, hostname: string): Promise<ILogicResponse | IErrorResponse> => {
     // check if valid user
     const matchingUsers: any = await find("contacts", `email=\'${email}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain", "neighbourhood"]); // TODO -: this is bad, we should be loading it into a type
 
@@ -72,6 +72,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
             }
         },
     ];
+
 
     const response: ILogicResponse = {
         responseBody: matchedUser,
