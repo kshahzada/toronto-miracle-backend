@@ -3,10 +3,10 @@ import { NextFunction, Request, Response } from "express";
 const { local } = process.env;
 
 const whitelist = [
-    'dev-app.torontomiracle.org',
-    'app.torontomiracle.org',
-    ... local ? ['editor.swagger.io'] : [],
-    ... local ? ['localhost:3000'] : [],
+    'https://dev-app.torontomiracle.org',
+    'https://app.torontomiracle.org',
+    ... local ? ['https://editor.swagger.io'] : [],
+    ... local ? ['http://localhost:3000'] : [],
 ];
 
 export const cors = () => {
