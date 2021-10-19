@@ -20,7 +20,7 @@ service.use(morgan("combined"));
 service.use(bodyParser.json({ limit: "50mb" }));
 service.use(cookieParser());
 service.use(cors({
-    origin: local ? "/localhost/" : "/\.torontomiracle\.org$/",
+    origin: local ? "*" : "/\.torontomiracle\.org$/",
 }));
 
 service.use(compression());
