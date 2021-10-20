@@ -93,6 +93,11 @@ paths:
                   isCaptain: 
                     type: boolean
                     example: true
+                  neighbourhoods:
+                    type: array
+                    items:
+                      type: string
+                      example: rec1OaOUDj1qYhHsE
   /resources/loggedin:
     get:
       description: 'Confirm if the user is logged in, return the user details if they are (by checking JWT in cookies; "id_token")'
@@ -126,6 +131,11 @@ paths:
                   isCaptain: 
                     type: boolean
                     example: true
+                  neighbourhoods:
+                    type: array
+                    items:
+                      type: string
+                      example: rec1OaOUDj1qYhHsE
         '401':
           description: Failure - User is not logged in
           content:
@@ -143,13 +153,6 @@ paths:
       security:
         - id_token: [user]
       parameters:
-        - in: cookie
-          name: token_id
-          schema:
-            type: string
-            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJyZWNhYVFhdXFRdmJQSzBVWSIsImlhdCI6MTYzNDUyMjM5NSwiZXhwIjoxNjM0NTUxMTk1fQ.tCHL84AOSuwNNGeJUikPEPdtg6xe3jv7F_E7LfbnIHk
-          required: true
-          description: JWT stored as cookie with user id
         - in: path
           name: captainId
           schema:
@@ -188,3 +191,43 @@ paths:
                       Phone Number: 
                         type: string
                         example: 4169671111
+  /neighbourhoods/{neighbourhood}/volunteers:
+    get:
+      security:
+        - id_token: [user]
+      parameters:
+        - in: path
+          name: neighbourhood
+          schema:
+            type: string
+            example: recYIFFC1Uq2HYAuj
+          required: true
+          description: Record ID / User ID a neighbourhoods volunteers
+      description: "Get all of a neighbourhood's volunteers"
+      operationId: getNeighbourhoodVolunteers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response Body
+                properties:
+                  message:
+                   type: array
+                   items:
+                    type: object
+                    properties: 
+                      id: 
+                        type: string
+                        example: recYIFFC1Uq2HYAuj
+                      Email: 
+                        type: string
+                        example: tony@stark.ca
+                      First Name: 
+                        type: string
+                        example: Tony
+                      Last Name: 
+                        type: string
+                        example: Stark

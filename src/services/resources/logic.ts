@@ -16,8 +16,8 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
         lastName: rawUser["Last Name"],
         phoneNumber: rawUser["Phone Number"],
         isCaptain: rawUser.isCaptain,
+        neighbourhoods: rawUser.neighbourhood
     };
-    console.log({rawUser});
 
     const response: ILogicResponse = {
         responseBody: user,
@@ -26,9 +26,9 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
     return response;
 };
 
-export const getTokenLogic = async (email: string, phoneNumber: string): Promise<ILogicResponse | IErrorResponse> => {
+export const getTokenLogic = async (email: string, phoneNumber: string, hostname: string): Promise<ILogicResponse | IErrorResponse> => {
     // check if valid user
-    const matchingUsers: any = await find("contacts", `email=\'${email}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain"]); // TODO -: this is bad, we should be loading it into a type
+    const matchingUsers: any = await find("contacts", `email=\'${email}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain", "neighbourhood"]); // TODO -: this is bad, we should be loading it into a type
 
     // if more than one user, send server error
     if(matchingUsers.length > 1){
@@ -39,6 +39,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
     if(matchingUsers.length !== 1){
         return authenticationFailedError();
     }
+    console.log(matchingUsers[0])
 
     const matchedUser = {
         id: matchingUsers[0].id,
@@ -47,6 +48,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
         lastName: matchingUsers[0]["Last Name"],
         phoneNumber: matchingUsers[0]["Phone Number"],
         isCaptain: matchingUsers[0].isCaptain,
+        neighbourhoods: matchingUsers[0].neighbourhood
     };
 
     // if real user doesn't have a matching phone number, send auth error
@@ -55,7 +57,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
     }
 
     // generate access token
-    const accessToken = jwt.sign({ userId: matchedUser.id }, accessTokenSecret, {expiresIn: TOKEN_EXPIRY_TIME});
+    const accessToken = jwt.sign({ userId: matchedUser.id, neighbourhoods: matchedUser.neighbourhoods, team: [], role: "captain" }, accessTokenSecret, {expiresIn: TOKEN_EXPIRY_TIME});
 
     // if real user - send success + set auth cookie
     const cookies: ICookie[] = [
@@ -65,11 +67,12 @@ export const getTokenLogic = async (email: string, phoneNumber: string): Promise
             options: {
                 maxAge: TOKEN_EXPIRY_TIME * 1000, // convert to ms
                 httpOnly: true,
-                ...(!local && { domain: "torontomiracle.org" }), // conditionally set domain if you are not developping locally
+                ...(local ? {} : { domain: "torontomiracle.org" }), // conditionally set domain if you are not developping locally
                 sameSite: "lax"
             }
         },
     ];
+
 
     const response: ILogicResponse = {
         responseBody: matchedUser,
@@ -87,9 +90,22 @@ export const healthCheckLogic = async (): Promise<ILogicResponse> => {
     return response;
 };
 
-export const volunteersLogic = async (captain_id: string): Promise<ILogicResponse> => {
+export const captainVolunteersLogic = async (captain_id: string): Promise<ILogicResponse> => {
     // empty filterByFormula for now, replace with captain_id once ready
     const volunteers = await find("Contacts", "", ["First Name", "Last Name", "Email", "Phone Number"] , [], "Volunteers");
+    if (volunteers === undefined){
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: volunteers },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
+    // empty filterByFormula for now, replace with captain_id once ready
+    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number"] , [], "Volunteers");
     if (volunteers === undefined){
         return resourceNotFoundError();
     }
