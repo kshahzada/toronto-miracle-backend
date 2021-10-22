@@ -105,7 +105,7 @@ export const captainVolunteersLogic = async (captain_id: string): Promise<ILogic
 
 export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
     // empty filterByFormula for now, replace with captain_id once ready
-    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number"] , [], "Volunteers");
+    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number", "Vehicle Access", "Waiver"] , [], "Volunteers");
     if (volunteers === undefined){
         return resourceNotFoundError();
     }
