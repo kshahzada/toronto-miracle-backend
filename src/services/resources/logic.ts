@@ -29,7 +29,6 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
 export const getTokenLogic = async (email: string, phoneNumber: string, hostname: string): Promise<ILogicResponse | IErrorResponse> => {
     // check if valid user
     const matchingUsers: any = await find("contacts", `email=\'${email}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain", "neighbourhood"]); // TODO -: this is bad, we should be loading it into a type
-    console.log({matchingUsers})
     // if more than one user, send server error
     if(matchingUsers.length > 1){
         return serverError("Multiple users found");
@@ -51,8 +50,8 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
         neighbourhoods: matchingUsers[0].neighbourhood
     };
 
-    // if real user doesn't have a matching phone number, send auth error (STRIPS JUST NUMBERS FROM PHONE NUMBERS STRING)
-    if(matchedUser.phoneNumber.replace(/\D/g,'') !== phoneNumber.replace(/\D/g,'')  || matchedUser.isCaptain !== true){
+    // if real user doesn't have a matching phone number, send auth error (EXTRACTS JUST NUMBERS FROM PHONE NUMBER STRING FROM THE DB)
+    if(matchedUser.phoneNumber.replace(/\D/g,'') !== phoneNumber || matchedUser.isCaptain !== true){
         return authenticationFailedError();
     }
 
