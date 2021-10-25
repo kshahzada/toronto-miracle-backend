@@ -121,7 +121,6 @@ export const updateVolunteerLogic = async (userId: string, fields: IUpdateReques
             "fields": fields
         }
     ]);
-    console.log('updatedVol', updatedVol);
     if (updatedVol === undefined){
         return resourceNotFoundError();
     }
