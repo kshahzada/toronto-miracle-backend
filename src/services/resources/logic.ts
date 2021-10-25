@@ -1,7 +1,7 @@
-import { find, read } from "../../integrations/airtable";
+import { find, read, update } from "../../integrations/airtable";
 import jwt from 'jsonwebtoken';
 import { IErrorResponse } from "../../types/errors";
-import { ILogicResponse, ICookie } from "../../types/types";
+import { ILogicResponse, ICookie, IUpdateRequest } from "../../types/types";
 import { resourceNotFoundError, serverError, authenticationFailedError } from "../../errors";
 
 const { accessTokenSecret, local } = process.env;
@@ -103,13 +103,30 @@ export const captainVolunteersLogic = async (captain_id: string): Promise<ILogic
 };
 
 export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
-    // empty filterByFormula for now, replace with captain_id once ready
-    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number", "Vehicle Access", "Waiver"] , [], "Volunteers");
+    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number", "Vehicle Access", "Waiver", "captainsNotes"] , [], "Volunteers");
     if (volunteers === undefined){
         return resourceNotFoundError();
     }
     const response: ILogicResponse = {
         responseBody: { message: volunteers },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const updateVolunteerLogic = async (userId: string, fields: IUpdateRequest): Promise<ILogicResponse> => {
+    const updatedVol = await update("Contacts", [
+        {
+            "id": userId,
+            "fields": fields
+        }
+    ]);
+    console.log('updatedVol', updatedVol);
+    if (updatedVol === undefined){
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: updatedVol },
         statusCode: 200,
     };
     return response;

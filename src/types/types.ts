@@ -14,3 +14,7 @@ export interface ICookie {
     val: any;
     options: CookieOptions;
 }
+
+export interface IUpdateRequest {
+    captainsNotes: string;
+}

@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { badRequestError } from "../../errors";
 import { ILogicResponse } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
-import { healthCheckLogic, captainVolunteersLogic, neighbourhoodVolunteersLogic, getTokenLogic, getLoggedInLogic } from "./logic";
+import { healthCheckLogic, captainVolunteersLogic, neighbourhoodVolunteersLogic, getTokenLogic, getLoggedInLogic, updateVolunteerLogic } from "./logic";
 
 const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErrorResponse) => {
     const { statusCode, responseBody } = logicResponse;
@@ -99,6 +99,42 @@ export const neighbourhoodVolunteers = async (req: Request, res: Response) => {
     // otherwise complete request
     const { neighbourhood } = parsedParams;
     const response = await neighbourhoodVolunteersLogic(neighbourhood);
+    return sendResponse(res, response);
+};
+
+export const updateVolunteer = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        volunteer: Joi.string().required(), // can further validate shape
+    });
+
+    const bodySchema = Joi.object({
+        fields: Joi.object({
+            captainsNotes: Joi.string(),
+        }).required(),
+    });
+
+    // destructure request
+    const { params, body } = req;
+    console.log(params, body);
+
+    // test request shape
+    const { value: parsedParams, error: paramsSchemaError } = paramSchema.validate(params);
+    const { value: parsedBody, error: bodySchemaError } = bodySchema.validate(body);
+
+    // if there is a schema issue, respond with 400
+    if (paramsSchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    } else if (bodySchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { volunteer } = parsedParams;
+    const { fields } = parsedBody;
+    const response = await updateVolunteerLogic(volunteer, fields);
     return sendResponse(res, response);
 };
 

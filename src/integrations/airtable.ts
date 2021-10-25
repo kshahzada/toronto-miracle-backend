@@ -66,20 +66,26 @@ export const find = async (table: string, filterByFormula?: string, fields?: str
     });
 }
 
-// commenting out because this program should READ-ONLY
+export const update = async (table, data) => {
+    return new Promise((res,rej) => {
+        base(table).update(data, function(err, record) {
+            if (err) {
+              console.log(err)
+              console.error(err);
+              return rej(err);
+            }
+            
+            if (record) {
+                console.log(record[0]);
+                // assuming maximum one user updated at a time
+                return res({
+                    id: record[0].id,
+                    ...record[0].fields
+                });
+            }
 
-// export const write = async (table, data) => {
-//     return new Promise((res,rej) => {
-//         base(table).create(data, {typecast: true}, function(err, record) {
-//             if (err) {
-//               console.error(err);
-//               return rej(err);
-//             }
-//             if (record) {
-//                 return res(record.fields);
-//             }
-//             return res(undefined);
-//         });
-//     })
-// }
+            return res(undefined);
+        });
+    })
+}
 
