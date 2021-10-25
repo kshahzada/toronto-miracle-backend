@@ -70,13 +70,11 @@ export const update = async (table, data) => {
     return new Promise((res,rej) => {
         base(table).update(data, function(err, record) {
             if (err) {
-              console.log(err)
               console.error(err);
               return rej(err);
             }
             
             if (record) {
-                console.log(record[0]);
                 // assuming maximum one user updated at a time
                 return res({
                     id: record[0].id,

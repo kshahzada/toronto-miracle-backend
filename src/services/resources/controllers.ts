@@ -116,7 +116,6 @@ export const updateVolunteer = async (req: Request, res: Response) => {
 
     // destructure request
     const { params, body } = req;
-    console.log(params, body);
 
     // test request shape
     const { value: parsedParams, error: paramsSchemaError } = paramSchema.validate(params);
