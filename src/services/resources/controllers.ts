@@ -28,7 +28,7 @@ export const authenticate = async (req: Request, res: Response) => {
     // define schema shapes
     const paramSchema = Joi.object({
         email: Joi.string().email().required(),
-        phoneNumber: Joi.string().min(10).max(11).required(),
+        phoneNumber: Joi.string().min(11).max(12).required(),
     });
 
     // destructure request
