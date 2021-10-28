@@ -6,6 +6,7 @@ import { resourceNotFoundError, serverError, authenticationFailedError } from ".
 
 const { accessTokenSecret, local } = process.env;
 const TOKEN_EXPIRY_TIME = 8*60*60; // 8hr in seconds
+const DEFAULT_AREA_CODE = "1";
 
 export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse | IErrorResponse> => {
     const rawUser: any = await read("contacts", userId); // TODO :- need to actually define the type here
@@ -39,7 +40,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
         return authenticationFailedError();
     }
     console.log(matchingUsers[0])
-
+    // need to add db mapping function to integration
     const matchedUser = {
         id: matchingUsers[0].id,
         email: matchingUsers[0].Email,
@@ -50,8 +51,11 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
         neighbourhoods: matchingUsers[0].neighbourhood
     };
 
+    matchedUser.phoneNumber = matchedUser.phoneNumber.replace(/\D/g,'')
+    matchedUser.phoneNumber = matchedUser.phoneNumber.length < 11 ? DEFAULT_AREA_CODE + matchedUser.phoneNumber : matchedUser.phoneNumber;
+    
     // if real user doesn't have a matching phone number, send auth error (EXTRACTS JUST NUMBERS FROM PHONE NUMBER STRING FROM THE DB)
-    if(matchedUser.phoneNumber.replace(/\D/g,'') !== phoneNumber || matchedUser.isCaptain !== true){
+    if(matchedUser.phoneNumber !== phoneNumber || matchedUser.isCaptain !== true){
         return authenticationFailedError();
     }
 
