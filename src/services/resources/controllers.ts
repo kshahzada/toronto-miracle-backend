@@ -3,7 +3,15 @@ import { Request, Response } from "express";
 import { badRequestError } from "../../errors";
 import { ILogicResponse } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
-import { healthCheckLogic, captainVolunteersLogic, neighbourhoodVolunteersLogic, getTokenLogic, getLoggedInLogic, updateVolunteerLogic } from "./logic";
+import { 
+    healthCheckLogic, 
+    captainVolunteersLogic, 
+    neighbourhoodVolunteersLogic, 
+    getTokenLogic, 
+    getLoggedInLogic, 
+    updateVolunteerLogic, 
+    logoutLogic 
+} from "./logic";
 
 const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErrorResponse) => {
     const { statusCode, responseBody } = logicResponse;
@@ -14,12 +22,23 @@ const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErr
         })
     }
 
+    if( "clearCookies" in logicResponse && logicResponse.clearCookies !== undefined ){
+        logicResponse.clearCookies.forEach((clearCookie) => {
+            expressRes.clearCookie(clearCookie.name);
+        })
+    }
+
     return expressRes.status(statusCode).json(responseBody);
 };
 
 export const getLoggedIn = async (req: Request, res: Response) => {
     const { userId } = req.user;
     const response = await getLoggedInLogic(userId);
+    return sendResponse(res, response);
+};
+
+export const logout = async (req: Request, res: Response) => {
+    const response = await logoutLogic();
     return sendResponse(res, response);
 };
 

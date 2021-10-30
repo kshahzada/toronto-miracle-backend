@@ -1,7 +1,7 @@
 import { find, read, update } from "../../integrations/airtable";
 import jwt from 'jsonwebtoken';
 import { IErrorResponse } from "../../types/errors";
-import { ILogicResponse, ICookie, IUpdateRequest } from "../../types/types";
+import { ILogicResponse, ICookie, IClearCookie, IUpdateRequest } from "../../types/types";
 import { resourceNotFoundError, serverError, authenticationFailedError } from "../../errors";
 
 const { accessTokenSecret, local } = process.env;
@@ -26,6 +26,20 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
     };
     return response;
 };
+
+export const logoutLogic = async () : Promise<ILogicResponse | IErrorResponse> => {
+    const clearCookies: IClearCookie[] = [
+        {
+            name: "id_token"
+        },
+    ];
+    
+    const response: ILogicResponse = {
+        clearCookies,
+        statusCode: 200,
+    };
+    return response;
+}
 
 export const getTokenLogic = async (email: string, phoneNumber: string, hostname: string): Promise<ILogicResponse | IErrorResponse> => {
     // check if valid user
