@@ -9,7 +9,7 @@ import {
     neighbourhoodVolunteersLogic, 
     getTokenLogic, 
     getLoggedInLogic, 
-    updateVolunteerLogic, 
+    updateVolunteerNotesLogic, 
     logoutLogic 
 } from "./logic";
 
@@ -149,9 +149,9 @@ export const updateVolunteerNotes = async (req: Request, res: Response) => {
     }
 
     // otherwise complete request
-    const { volunteer } = parsedParams;    
+    const { volunteer, neighbourhood } = parsedParams;    
     const fields: IUpdateFields = parsedBody.fields;
-    const response = await updateVolunteerLogic(volunteer, fields);
+    const response = await updateVolunteerNotesLogic(neighbourhood, volunteer, fields);
     return sendResponse(res, response);
 };
 
