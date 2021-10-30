@@ -55,7 +55,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
     if(matchingUsers.length !== 1){
         return authenticationFailedError();
     }
-    console.log(matchingUsers[0])
+
     // need to add db mapping function to integration
     const matchedUser = {
         id: matchingUsers[0].id,
