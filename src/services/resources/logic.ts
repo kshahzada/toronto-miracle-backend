@@ -134,7 +134,15 @@ export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promi
     return response;
 };
 
-export const updateVolunteerLogic = async (userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
+export const updateVolunteerNotesLogic = async (captainNeighborhood: string[], userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
+    const vol:any = await read("contacts", userId);
+    console.log(vol);
+
+    // if captain requesting the change isn't the vol's assigned neighboorhood captain, then send auth eror
+    if(!(vol.neighbourhood[0] === captainNeighborhood)){
+        return authenticationFailedError();
+    }
+
     const updatedVol = await update("Contacts", [
         {
             "id": userId,
