@@ -1,7 +1,7 @@
 import Joi from "@hapi/joi";
 import { Request, Response } from "express";
 import { badRequestError } from "../../errors";
-import { ILogicResponse } from "../../types/types";
+import { ILogicResponse, IUpdateFields } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
 import { 
     healthCheckLogic, 
@@ -18,13 +18,11 @@ const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErr
 
     if( "cookies" in logicResponse && logicResponse.cookies !== undefined ){
         logicResponse.cookies.forEach((cookie) => {
-            expressRes.cookie(cookie.name, cookie.val, cookie.options);
-        })
-    }
-
-    if( "clearCookies" in logicResponse && logicResponse.clearCookies !== undefined ){
-        logicResponse.clearCookies.forEach((clearCookie) => {
-            expressRes.clearCookie(clearCookie.name);
+            if (cookie.val) {
+                expressRes.cookie(cookie.name, cookie.val, cookie.options);
+            } else {
+                expressRes.clearCookie(cookie.name);
+            }
         })
     }
 
@@ -121,10 +119,11 @@ export const neighbourhoodVolunteers = async (req: Request, res: Response) => {
     return sendResponse(res, response);
 };
 
-export const updateVolunteer = async (req: Request, res: Response) => {
+export const updateVolunteerNotes = async (req: Request, res: Response) => {
     // define schema shapes
     const paramSchema = Joi.object({
         volunteer: Joi.string().required(), // can further validate shape
+        neighbourhood: Joi.string().token().length(17).required(),
     });
 
     const bodySchema = Joi.object({
@@ -150,8 +149,8 @@ export const updateVolunteer = async (req: Request, res: Response) => {
     }
 
     // otherwise complete request
-    const { volunteer } = parsedParams;
-    const { fields } = parsedBody;
+    const { volunteer } = parsedParams;    
+    const fields: IUpdateFields = parsedBody.fields;
     const response = await updateVolunteerLogic(volunteer, fields);
     return sendResponse(res, response);
 };

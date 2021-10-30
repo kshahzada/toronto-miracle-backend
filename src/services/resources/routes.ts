@@ -4,7 +4,7 @@ import {
   healthCheck,
   captainVolunteers,
   neighbourhoodVolunteers,
-  updateVolunteer,
+  updateVolunteerNotes,
   authenticate,
   getLoggedIn,
   logout,
@@ -14,7 +14,7 @@ export const router = express.Router();
 
 router.use("/v1/resources/healthcheck", healthCheck);
 router.get("/v1/neighbourhoods/:neighbourhood/volunteers", neighbourhoodVolunteers);
-router.post("/v1/volunteers/:volunteer/update", updateVolunteer);
+router.post("/v1/neighbourhoods/:neighbourhood/volunteers/:volunteer/updateNotes", updateVolunteerNotes);
 router.get("/v1/auth/me", getLoggedIn);
 router.post("/v1/auth/authenticate", authenticate);
 router.post("/v1/auth/logout", logout);

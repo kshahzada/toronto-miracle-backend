@@ -7,7 +7,6 @@ export interface ILogicResponse {
     // redirectURL?: string;
     statusCode: number;
     cookies?: ICookie[];
-    clearCookies?: IClearCookie[];
 }
 
 export interface ICookie {
@@ -16,10 +15,11 @@ export interface ICookie {
     options: CookieOptions;
 }
 
-export interface IClearCookie {
-    name: string;
+export interface IUpdateAirtableData {
+    id: string,
+    fields: IUpdateFields
 }
 
-export interface IUpdateRequest {
-    captainsNotes: string;
+export interface IUpdateFields {
+    captainsNotes?: string,
 }

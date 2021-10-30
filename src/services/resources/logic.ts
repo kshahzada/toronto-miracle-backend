@@ -1,7 +1,7 @@
 import { find, read, update } from "../../integrations/airtable";
 import jwt from 'jsonwebtoken';
 import { IErrorResponse } from "../../types/errors";
-import { ILogicResponse, ICookie, IClearCookie, IUpdateRequest } from "../../types/types";
+import { ILogicResponse, ICookie, IUpdateFields } from "../../types/types";
 import { resourceNotFoundError, serverError, authenticationFailedError } from "../../errors";
 
 const { accessTokenSecret, local } = process.env;
@@ -28,14 +28,16 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
 };
 
 export const logoutLogic = async () : Promise<ILogicResponse | IErrorResponse> => {
-    const clearCookies: IClearCookie[] = [
+    const cookies: ICookie[] = [
         {
-            name: "id_token"
+            name: "id_token",
+            val: null,
+            options: {}
         },
     ];
     
     const response: ILogicResponse = {
-        clearCookies,
+        cookies,
         statusCode: 200,
     };
     return response;
@@ -132,7 +134,7 @@ export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promi
     return response;
 };
 
-export const updateVolunteerLogic = async (userId: string, fields: IUpdateRequest): Promise<ILogicResponse> => {
+export const updateVolunteerLogic = async (userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
     const updatedVol = await update("Contacts", [
         {
             "id": userId,

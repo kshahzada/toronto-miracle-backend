@@ -3,6 +3,8 @@ import axios from 'axios';
 import qs from 'querystring';
 import Airtable from 'airtable';
 import { Sort } from '../types/custom';
+import { IUpdateAirtableData } from "../types/types";
+
 
 const { AIRTABLE_BASE, AIRTABLE_KEY } = process.env;
 
@@ -66,7 +68,7 @@ export const find = async (table: string, filterByFormula?: string, fields?: str
     });
 }
 
-export const update = async (table, data) => {
+export const update = async (table, data: IUpdateAirtableData[]) => {
     return new Promise((res,rej) => {
         base(table).update(data, function(err, record) {
             if (err) {
