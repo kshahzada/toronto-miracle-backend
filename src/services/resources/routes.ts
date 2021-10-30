@@ -7,6 +7,7 @@ import {
   updateVolunteer,
   authenticate,
   getLoggedIn,
+  logout,
 } from "./controllers";
 
 export const router = express.Router();
@@ -16,6 +17,7 @@ router.get("/v1/neighbourhoods/:neighbourhood/volunteers", neighbourhoodVoluntee
 router.post("/v1/volunteers/:volunteer/update", updateVolunteer);
 router.get("/v1/auth/me", getLoggedIn);
 router.post("/v1/auth/authenticate", authenticate);
+router.post("/v1/auth/logout", logout);
 
 // to be deprecated
 router.get("/v1/resources/captains/:captain_id/volunteers", captainVolunteers);

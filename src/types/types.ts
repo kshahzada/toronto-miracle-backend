@@ -7,12 +7,17 @@ export interface ILogicResponse {
     // redirectURL?: string;
     statusCode: number;
     cookies?: ICookie[];
+    clearCookies?: IClearCookie[];
 }
 
 export interface ICookie {
     name: string;
     val: any;
     options: CookieOptions;
+}
+
+export interface IClearCookie {
+    name: string;
 }
 
 export interface IUpdateRequest {
