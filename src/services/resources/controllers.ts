@@ -13,6 +13,8 @@ import {
     logoutLogic 
 } from "./logic";
 
+const { local } = process.env;
+
 const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErrorResponse) => {
     const { statusCode, responseBody } = logicResponse;
 
@@ -21,7 +23,9 @@ const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErr
             if (cookie.val) {
                 expressRes.cookie(cookie.name, cookie.val, cookie.options);
             } else {
-                expressRes.clearCookie(cookie.name);
+                expressRes.clearCookie(cookie.name, {
+                    ...(local ? {} : { domain: "torontomiracle.org" }), // conditionally set domain if you are not developping locally
+                });
             }
         })
     }
