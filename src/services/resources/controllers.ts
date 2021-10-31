@@ -132,7 +132,7 @@ export const updateVolunteerNotes = async (req: Request, res: Response) => {
 
     const bodySchema = Joi.object({
         fields: Joi.object({
-            captainsNotes: Joi.string(),
+            captainsNotes: Joi.string().allow(""),
         }).required(),
     });
 
