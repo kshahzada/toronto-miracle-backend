@@ -17,9 +17,6 @@ auth.use("/v1/neighbourhoods/:neighbourhood/*", jwt({
     const { neighbourhood } = req.params;
     const { neighbourhoods } = req.user;
 
-    console.log({neighbourhood})
-    console.log({neighbourhoods})
-
     if (!neighbourhoods.includes(neighbourhood)) {
         res.status(401).json({ error: "invalid token" });
         return res.end();
