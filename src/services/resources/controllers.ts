@@ -23,7 +23,6 @@ const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErr
             if (cookie.val) {
                 expressRes.cookie(cookie.name, cookie.val, cookie.options);
             } else {
-                console.log({name: cookie.name})
                 expressRes.clearCookie(cookie.name, {
                     ...(local ? {} : { domain: "torontomiracle.org" }), // conditionally set domain if you are not developping locally
                 });
