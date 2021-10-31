@@ -1,16 +1,28 @@
 import Joi from "@hapi/joi";
 import { Request, Response } from "express";
 import { badRequestError } from "../../errors";
-import { ILogicResponse } from "../../types/types";
+import { ILogicResponse, IUpdateFields } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
-import { healthCheckLogic, captainVolunteersLogic, neighbourhoodVolunteersLogic, getTokenLogic, getLoggedInLogic } from "./logic";
+import { 
+    healthCheckLogic, 
+    captainVolunteersLogic, 
+    neighbourhoodVolunteersLogic, 
+    getTokenLogic, 
+    getLoggedInLogic, 
+    updateVolunteerNotesLogic, 
+    logoutLogic 
+} from "./logic";
 
 const sendResponse = (expressRes: Response, logicResponse: ILogicResponse | IErrorResponse) => {
     const { statusCode, responseBody } = logicResponse;
 
     if( "cookies" in logicResponse && logicResponse.cookies !== undefined ){
         logicResponse.cookies.forEach((cookie) => {
-            expressRes.cookie(cookie.name, cookie.val, cookie.options);
+            if (cookie.val) {
+                expressRes.cookie(cookie.name, cookie.val, cookie.options);
+            } else {
+                expressRes.clearCookie(cookie.name);
+            }
         })
     }
 
@@ -23,12 +35,17 @@ export const getLoggedIn = async (req: Request, res: Response) => {
     return sendResponse(res, response);
 };
 
+export const logout = async (req: Request, res: Response) => {
+    const response = await logoutLogic();
+    return sendResponse(res, response);
+};
+
 export const authenticate = async (req: Request, res: Response) => {
 
     // define schema shapes
     const paramSchema = Joi.object({
         email: Joi.string().email().required(),
-        phoneNumber: Joi.string().min(10).max(11).required(),
+        phoneNumber: Joi.string().min(11).max(12).required(),
     });
 
     // destructure request
@@ -99,6 +116,42 @@ export const neighbourhoodVolunteers = async (req: Request, res: Response) => {
     // otherwise complete request
     const { neighbourhood } = parsedParams;
     const response = await neighbourhoodVolunteersLogic(neighbourhood);
+    return sendResponse(res, response);
+};
+
+export const updateVolunteerNotes = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        volunteer: Joi.string().required(), // can further validate shape
+        neighbourhood: Joi.string().token().length(17).required(),
+    });
+
+    const bodySchema = Joi.object({
+        fields: Joi.object({
+            captainsNotes: Joi.string(),
+        }).required(),
+    });
+
+    // destructure request
+    const { params, body } = req;
+
+    // test request shape
+    const { value: parsedParams, error: paramsSchemaError } = paramSchema.validate(params);
+    const { value: parsedBody, error: bodySchemaError } = bodySchema.validate(body);
+
+    // if there is a schema issue, respond with 400
+    if (paramsSchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    } else if (bodySchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { volunteer, neighbourhood } = parsedParams;    
+    const fields: IUpdateFields = parsedBody.fields;
+    const response = await updateVolunteerNotesLogic(neighbourhood, volunteer, fields);
     return sendResponse(res, response);
 };
 

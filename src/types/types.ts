@@ -14,3 +14,12 @@ export interface ICookie {
     val: any;
     options: CookieOptions;
 }
+
+export interface IUpdateAirtableData {
+    id: string,
+    fields: IUpdateFields
+}
+
+export interface IUpdateFields {
+    captainsNotes?: string,
+}

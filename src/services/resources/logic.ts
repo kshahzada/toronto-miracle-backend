@@ -1,11 +1,12 @@
-import { find, read } from "../../integrations/airtable";
+import { find, read, update } from "../../integrations/airtable";
 import jwt from 'jsonwebtoken';
 import { IErrorResponse } from "../../types/errors";
-import { ILogicResponse, ICookie } from "../../types/types";
+import { ILogicResponse, ICookie, IUpdateFields } from "../../types/types";
 import { resourceNotFoundError, serverError, authenticationFailedError } from "../../errors";
 
 const { accessTokenSecret, local } = process.env;
 const TOKEN_EXPIRY_TIME = 8*60*60; // 8hr in seconds
+const DEFAULT_AREA_CODE = "1";
 
 export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse | IErrorResponse> => {
     const rawUser: any = await read("contacts", userId); // TODO :- need to actually define the type here
@@ -26,6 +27,22 @@ export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse 
     return response;
 };
 
+export const logoutLogic = async () : Promise<ILogicResponse | IErrorResponse> => {
+    const cookies: ICookie[] = [
+        {
+            name: "id_token",
+            val: null,
+            options: {}
+        },
+    ];
+    
+    const response: ILogicResponse = {
+        cookies,
+        statusCode: 200,
+    };
+    return response;
+}
+
 export const getTokenLogic = async (email: string, phoneNumber: string, hostname: string): Promise<ILogicResponse | IErrorResponse> => {
     // check if valid user
     const matchingUsers: any = await find("contacts", `email=\'${email}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain", "neighbourhood"]); // TODO -: this is bad, we should be loading it into a type
@@ -38,8 +55,8 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
     if(matchingUsers.length !== 1){
         return authenticationFailedError();
     }
-    console.log(matchingUsers[0])
 
+    // need to add db mapping function to integration
     const matchedUser = {
         id: matchingUsers[0].id,
         email: matchingUsers[0].Email,
@@ -50,8 +67,11 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
         neighbourhoods: matchingUsers[0].neighbourhood
     };
 
+    matchedUser.phoneNumber = matchedUser.phoneNumber.replace(/\D/g,'')
+    matchedUser.phoneNumber = matchedUser.phoneNumber.length < 11 ? DEFAULT_AREA_CODE + matchedUser.phoneNumber : matchedUser.phoneNumber;
+    
     // if real user doesn't have a matching phone number, send auth error (EXTRACTS JUST NUMBERS FROM PHONE NUMBER STRING FROM THE DB)
-    if(matchedUser.phoneNumber.replace(/\D/g,'') !== phoneNumber || matchedUser.isCaptain !== true){
+    if(matchedUser.phoneNumber !== phoneNumber || matchedUser.isCaptain !== true){
         return authenticationFailedError();
     }
 
@@ -103,13 +123,37 @@ export const captainVolunteersLogic = async (captain_id: string): Promise<ILogic
 };
 
 export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
-    // empty filterByFormula for now, replace with captain_id once ready
-    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number", "Vehicle Access", "Waiver"] , [], "Volunteers");
+    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number", "Vehicle Access", "Waiver", "captainsNotes"] , [], "Volunteers");
     if (volunteers === undefined){
         return resourceNotFoundError();
     }
     const response: ILogicResponse = {
         responseBody: { message: volunteers },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const updateVolunteerNotesLogic = async (captainNeighborhood: string[], userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
+    const vol:any = await read("contacts", userId);
+    console.log(vol);
+
+    // if captain requesting the change isn't the vol's assigned neighboorhood captain, then send auth eror
+    if(!(vol.neighbourhood[0] === captainNeighborhood)){
+        return authenticationFailedError();
+    }
+
+    const updatedVol = await update("Contacts", [
+        {
+            "id": userId,
+            "fields": fields
+        }
+    ]);
+    if (updatedVol === undefined){
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: updatedVol },
         statusCode: 200,
     };
     return response;
