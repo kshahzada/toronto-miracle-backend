@@ -7,6 +7,8 @@ import {
     healthCheckLogic, 
     captainVolunteersLogic, 
     neighbourhoodVolunteersLogic, 
+    neighbourhoodDonorsLogic,
+    neighbourhoodDrivesLogic,
     getTokenLogic, 
     getLoggedInLogic, 
     updateVolunteerNotesLogic, 
@@ -99,6 +101,30 @@ export const captainVolunteers = async (req: Request, res: Response) => {
     return sendResponse(res, response);
 };
 
+const getDataForNeigborhood = async (req: Request, res: Response, logic) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        neighbourhood: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if (schemaError) {
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { neighbourhood } = parsedParams;
+    const response = await logic(neighbourhood);
+    return sendResponse(res, response);
+}
+
 export const neighbourhoodVolunteers = async (req: Request, res: Response) => {
     // define schema shapes
     const paramSchema = Joi.object({
@@ -120,6 +146,34 @@ export const neighbourhoodVolunteers = async (req: Request, res: Response) => {
     // otherwise complete request
     const { neighbourhood } = parsedParams;
     const response = await neighbourhoodVolunteersLogic(neighbourhood);
+    return sendResponse(res, response);
+};
+
+export const neighbourhoodDonors = async (req: Request, res: Response) => {
+    return await getDataForNeigborhood(req, res, neighbourhoodDonorsLogic )
+};
+
+export const neighbourhoodDrives = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        neighbourhood: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if(schemaError){
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { neighbourhood } = parsedParams;
+    const response = await neighbourhoodDrivesLogic(neighbourhood);
     return sendResponse(res, response);
 };
 
