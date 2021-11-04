@@ -134,6 +134,30 @@ export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promi
     return response;
 };
 
+export const neighbourhoodDonorsLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
+    const donors = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="It'll just be me")`, ["address", "postal code", "pickup notes"] , [], "");
+    if (donors === undefined){
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: donors },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const neighbourhoodDrivesLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
+    const drives = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="I'll be running a larger food drive")`, ["email", "first name", "address", "postal code", "pickup notes"] , [], "");
+    if (drives === undefined){
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: drives },
+        statusCode: 200,
+    };
+    return response;
+};
+
 export const updateVolunteerNotesLogic = async (captainNeighborhood: string[], userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
     const vol:any = await read("contacts", userId);
 
