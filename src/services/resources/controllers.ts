@@ -101,6 +101,7 @@ export const captainVolunteers = async (req: Request, res: Response) => {
     return sendResponse(res, response);
 };
 
+// TODO:- we need to define what "logic" is as a template otherwise this is a dangerous pattern IMO
 const getDataForNeigborhood = async (req: Request, res: Response, logic) => {
     // define schema shapes
     const paramSchema = Joi.object({
@@ -155,7 +156,6 @@ export const neighbourhoodDonors = async (req: Request, res: Response) => {
 
 export const neighbourhoodDrives = async (req: Request, res: Response) => {
     return await getDataForNeigborhood(req, res, neighbourhoodDrivesLogic);
-
 };
 
 export const updateVolunteerNotes = async (req: Request, res: Response) => {

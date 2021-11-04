@@ -135,7 +135,7 @@ export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promi
 };
 
 export const neighbourhoodDonorsLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
-    const donors = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="It'll just be me")`, ["email", "first name", "address", "postal code", "pickup notes"] , [], "");
+    const donors = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="It'll just be me")`, ["address", "postal code", "pickup notes"] , [], "");
     if (donors === undefined){
         return resourceNotFoundError();
     }
