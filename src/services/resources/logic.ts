@@ -45,7 +45,7 @@ export const logoutLogic = async () : Promise<ILogicResponse | IErrorResponse> =
 
 export const getTokenLogic = async (email: string, phoneNumber: string, hostname: string): Promise<ILogicResponse | IErrorResponse> => {
     // check if valid user
-    const matchingUsers: any = await find("contacts", `email=\'${email}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain", "neighbourhood"]); // TODO -: this is bad, we should be loading it into a type
+    const matchingUsers: any = await find("contacts", `email=\'${email.toLowerCase()}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain", "neighbourhood"]); // TODO -: this is bad, we should be loading it into a type
     // if more than one user, send server error
     if(matchingUsers.length > 1){
         return serverError("Multiple users found");
