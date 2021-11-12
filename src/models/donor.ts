@@ -1,5 +1,5 @@
 
-import { find, read } from "../integrations/airtable";
+import { find } from "../integrations/airtable";
 import { IDonor } from "../types/types";
 import Joi from "@hapi/joi";
 
@@ -43,8 +43,7 @@ const transformFromDBToDonorModel = (inputDonor: any) : IDonor => {
 export const findDonorsByTeam = async (team: string): Promise<IDonor[]> => {
     const rawDonations = await find("Donations", 
     `FIND('${team}', team_id)>0`,
-    donorFields);
-    console.log({rawDonations})
+    donorFields, [], "Donors");
 
     const donations = rawDonations.map(rawDonation => transformFromDBToDonorModel(rawDonation))
     return donations;
