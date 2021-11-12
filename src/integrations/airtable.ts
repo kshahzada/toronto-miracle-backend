@@ -35,7 +35,7 @@ export const read = async (table: string, record_id: string) => {
     });
 }
 
-export const find = async (table: string, filterByFormula?: string, fields?: string[], sort?: Sort[], view?: string) => {
+export const find = async (table: string, filterByFormula?: string, fields?: string[], sort?: Sort[], view?: string) : Promise<any[]> => {
     const query = {
         filterByFormula,
         fields,
@@ -45,31 +45,20 @@ export const find = async (table: string, filterByFormula?: string, fields?: str
 
     const cleanedQuery = JSON.parse(JSON.stringify(query)); // remove undefined optional parameters
 
-    // TODO:- get additional pages if available
-    return new Promise((res,rej) => {
-        base(table).select(cleanedQuery).firstPage((err, records) => {
-            // console.info(err, records);
-            if (err) {
-                if (err.statusCode === 404){
-                    return res(undefined);
-                }
-                console.log({err})
-                return rej(err);
-            }
+    const records = await base(table).select(cleanedQuery).all();
 
-            if (records === undefined) {
-                return rej(new Error("Record is undefined"));
-            }
-
-            return res(records.map(record => ({
-                id: record.id,
-                ...record.fields,
-            })));
-        });
-    });
+    return records.map(record => ({
+        id: record.id,
+        ...record.fields,
+    }));
 }
 
 export const update = async (table, data: IUpdateAirtableData[]) => {
+    // assuming maximum one user updated at a time
+    if (data.length > 1){
+        throw new Error("Too many rows in Airtable update");
+    }
+
     return new Promise((res,rej) => {
         base(table).update(data, function(err, record) {
             if (err) {
@@ -78,7 +67,6 @@ export const update = async (table, data: IUpdateAirtableData[]) => {
             }
             
             if (record) {
-                // assuming maximum one user updated at a time
                 return res({
                     id: record[0].id,
                     ...record[0].fields
