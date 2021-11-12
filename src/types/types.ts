@@ -16,10 +16,20 @@ export interface ICookie {
 }
 
 export interface IUpdateAirtableData {
-    id: string,
-    fields: IUpdateFields
+    id: string;
+    fields: IUpdateFields;
 }
 
 export interface IUpdateFields {
-    captainsNotes?: string,
+    captainsNotes?: string;
+}
+
+export interface ICaptain {
+    userId: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    team: string;
+    neighbourhoods: string[];
 }
