@@ -3,26 +3,21 @@ import jwt from 'jsonwebtoken';
 import { IErrorResponse } from "../../types/errors";
 import { ILogicResponse, ICookie, IUpdateFields, ICaptain } from "../../types/types";
 import { resourceNotFoundError, serverError, authenticationFailedError } from "../../errors";
-import { findCaptainByEmail } from "../../models/captain";
+import { findCaptainByEmail, getCaptain } from "../../models/captain";
 
 const { accessTokenSecret, local } = process.env;
 const TOKEN_EXPIRY_TIME = 8 * 60 * 60; // 8hr in seconds
 const DEFAULT_AREA_CODE = "1";
 
 export const getLoggedInLogic = async (userId: string): Promise<ILogicResponse | IErrorResponse> => {
-    const rawUser: any = await read("contacts", userId); // TODO :- need to actually define the type here
-    const user = {
-        id: userId,
-        email: rawUser.Email,
-        firstName: rawUser["First Name"],
-        lastName: rawUser["Last Name"],
-        phoneNumber: rawUser["Phone Number"],
-        isCaptain: rawUser.isCaptain,
-        neighbourhoods: rawUser.neighbourhood
-    };
+    const captain: ICaptain | undefined = await getCaptain(userId);
+
+    if (captain === undefined){
+        return authenticationFailedError();
+    }
 
     const response: ILogicResponse = {
-        responseBody: user,
+        responseBody: captain,
         statusCode: 200,
     };
     return response;
@@ -53,7 +48,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
         return authenticationFailedError();
     }
 
-    // if real user doesn't have a matching phone number, send auth error (EXTRACTS JUST NUMBERS FROM PHONE NUMBER STRING FROM THE DB)
+    // if real user doesn't have a matching phone number, send auth error
     if (matchingUser.phoneNumber !== phoneNumber) {
         return authenticationFailedError();
     }

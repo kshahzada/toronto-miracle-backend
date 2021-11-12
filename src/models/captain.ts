@@ -6,13 +6,13 @@ import Joi from "@hapi/joi";
 const DEFAULT_AREA_CODE = "1";
 
 const captainDBSchema = Joi.object({
-    id: Joi.string(),
-    Email: Joi.string(),
-    "First Name": Joi.string(),
-    "Last Name": Joi.string(),
-    "Phone Number": Joi.string(),
-    team: Joi.array().items(Joi.string()),
-    neighbourhoods: Joi.array().items(Joi.string()),
+    id: Joi.string().required(),
+    Email: Joi.string().required(),
+    "First Name": Joi.string().required(),
+    "Last Name": Joi.string().required(),
+    "Phone Number": Joi.string().required(),
+    team: Joi.array().items(Joi.string()).required(),
+    neighbourhoods: Joi.array().items(Joi.string()).required(),
 });
 
 const captainFields = [
@@ -53,5 +53,10 @@ export const findCaptainByEmail = async (email: string): Promise<ICaptain | unde
     }
 
     return transformFromDBToModel(results[0]);
+}
+
+export const getCaptain = async (userId: string): Promise<ICaptain | undefined> => {
+    const rawCaptain: any = await read("Captains", userId, captainFields);
+    return transformFromDBToModel(rawCaptain);
 }
 
