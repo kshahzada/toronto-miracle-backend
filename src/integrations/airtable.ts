@@ -15,7 +15,7 @@ if ((AIRTABLE_BASE === undefined) || (AIRTABLE_KEY === undefined)) {
 // @ts-ignore
 const base = new Airtable({apiKey: AIRTABLE_KEY}).base(AIRTABLE_BASE);
 
-export const read = async (table: string, record_id: string) => {
+export const read = async (table: string, record_id: string, fields?: string[]) => {
     return new Promise((res,rej) => {
         base(table).find(record_id, (err, record) => {
             if (err) {
@@ -30,7 +30,18 @@ export const read = async (table: string, record_id: string) => {
                 return rej(new Error("Record is undefined"));
             }
 
-            return res(record.fields);
+            if (fields !== undefined){
+                return res({
+                    id: record_id, 
+                    ...Object.keys(record.fields)
+                    .filter(key => fields.includes(key))
+                    .reduce((obj, key) => {
+                        obj[key] = record.fields[key];
+                        return obj;
+                    }, {})});
+            }
+
+            return res({ id: record_id, ...record.fields });
         });
     });
 }
