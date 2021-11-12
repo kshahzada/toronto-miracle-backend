@@ -5,7 +5,6 @@ import { ILogicResponse, IUpdateFields } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
 import { 
     healthCheckLogic, 
-    captainVolunteersLogic, 
     neighbourhoodVolunteersLogic, 
     neighbourhoodDonorsLogic,
     neighbourhoodDrivesLogic,
@@ -74,30 +73,6 @@ export const authenticate = async (req: Request, res: Response) => {
 
 export const healthCheck = async (req: Request, res: Response) => {
     const response = await healthCheckLogic();
-    return sendResponse(res, response);
-};
-
-export const captainVolunteers = async (req: Request, res: Response) => {
-    // define schema shapes
-    const paramSchema = Joi.object({
-        captain_id: Joi.string().token().length(17).required(),
-    });
-
-    // destructure request
-    const { params } = req;
-
-    // test request shape
-    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
-
-    // if there is a schema issue, respond with 400
-    if(schemaError){
-        const response = badRequestError(schemaError);
-        return sendResponse(res, response);
-    }
-
-    // otherwise complete request
-    const { captain_id } = parsedParams;
-    const response = await captainVolunteersLogic(captain_id);
     return sendResponse(res, response);
 };
 
