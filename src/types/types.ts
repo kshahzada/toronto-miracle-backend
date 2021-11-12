@@ -33,3 +33,33 @@ export interface ICaptain {
     team: string;
     neighbourhoods: string[];
 }
+
+export interface IVolunteer {
+    userId: string;
+    email: string;
+    name: string;
+    vehicleAccess: boolean;
+    waiver: boolean;
+    notes: string;
+    team: string;
+    neighbourhood: string;
+}
+
+export interface IDonor {
+    userId: string;
+    address: string;
+    notes: string;
+    team: string;
+    neighbourhood: string;
+}
+
+export interface IFoodDrive {
+    userId: string;
+    email: string;
+    name: string;
+    address: string;
+    notes: string;
+    foodDrive: string;
+    team: string;
+    neighbourhood: string;
+}
