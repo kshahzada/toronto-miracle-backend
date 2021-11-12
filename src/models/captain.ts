@@ -1,5 +1,5 @@
 
-import { find, read, update } from "../integrations/airtable";
+import { find, read } from "../integrations/airtable";
 import { ICaptain } from "../types/types";
 import Joi from "@hapi/joi";
 
@@ -19,8 +19,11 @@ const captainFields = [
     "Email", "First Name", "Last Name", "Phone Number", "team", "neighbourhoods",
 ];
 
-const transformFromDBToModel = async (inputCaptain: any) => {
-    const rawCaptain = await captainDBSchema.validateAsync(inputCaptain);
+const transformFromDBToModel = (inputCaptain: any) : ICaptain => {
+    const { value: rawCaptain, error } = captainDBSchema.validate(inputCaptain);
+    if (error !== undefined){
+        throw new Error(error);
+    }
     const phoneNumber = rawCaptain["Phone Number"].replace(/\D/g,'');
     if(rawCaptain.team.length !== 1){
         throw new Error(`Captain is missing a team: ${{captain: rawCaptain}}`);
