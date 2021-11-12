@@ -5,6 +5,7 @@ import { ILogicResponse, ICookie, IUpdateFields, ICaptain } from "../../types/ty
 import { resourceNotFoundError, serverError, authenticationFailedError } from "../../errors";
 import { findCaptainByEmail, getCaptain } from "../../models/captain";
 import { findDonorsByTeam } from "../../models/donor";
+import { findFoodDrivesByTeam } from "../../models/foodDrives";
 
 const { accessTokenSecret, local } = process.env;
 const TOKEN_EXPIRY_TIME = 8 * 60 * 60; // 8hr in seconds
@@ -112,6 +113,16 @@ export const neighbourhoodDonorsLogic = async (neighbourhood: string): Promise<I
     }
     const response: ILogicResponse = {
         responseBody: { message: donors },
+        statusCode: 200,
+    };
+    return response;
+};
+
+
+export const teamFoodDrivesLogic = async (team: string): Promise<ILogicResponse> => {
+    const foodDrives = await findFoodDrivesByTeam(team);
+    const response: ILogicResponse = {
+        responseBody: { message: foodDrives },
         statusCode: 200,
     };
     return response;

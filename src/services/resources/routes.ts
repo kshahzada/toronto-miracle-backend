@@ -7,6 +7,7 @@ import {
   neighbourhoodDonors,
   neighbourhoodDrives,
   updateVolunteerNotes,
+  teamFoodDrives,
   authenticate,
   getLoggedIn,
   logout,
@@ -16,9 +17,9 @@ export const router = express.Router();
 
 router.use("/v1/resources/healthcheck", healthCheck);
 
-router.get("/v1/teams/:team/volunteers", neighbourhoodVolunteers);
+//router.get("/v1/teams/:team/volunteers", neighbourhoodVolunteers);
 router.get("/v1/teams/:team/donors", teamDonors);
-router.get("/v1/teams/:team/foodDrives", neighbourhoodDrives);
+router.get("/v1/teams/:team/food-drives", teamFoodDrives);
 
 router.get("/v1/auth/me", getLoggedIn);
 router.post("/v1/auth/authenticate", authenticate);

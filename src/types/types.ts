@@ -59,6 +59,7 @@ export interface IFoodDrive {
     name: string;
     address: string;
     notes: string;
+    foodDrive: string;
     team: string;
     neighbourhood: string;
 }
