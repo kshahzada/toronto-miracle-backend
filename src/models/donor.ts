@@ -42,7 +42,7 @@ const transformFromDBToDonorModel = (inputDonor: any) : IDonor => {
 
 export const findDonorsByTeam = async (team: string): Promise<IDonor[]> => {
     const rawDonations = await find("Donations", 
-    `AND(FIND('${team}', team_id)>0, food_drive="It'll just be me")`,
+    `FIND('${team}', team_id)>0`,
     donorFields, [], "Donors");
 
     const donations = rawDonations.map(rawDonation => {
