@@ -38,6 +38,7 @@ export interface IVolunteer {
     userId: string;
     email: string;
     name: string;
+    number: string;
     vehicleAccess: boolean;
     waiver: boolean;
     notes: string;

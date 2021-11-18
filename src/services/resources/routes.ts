@@ -2,6 +2,7 @@ import express from "express";
 import {
   badRequestCatch,
   healthCheck,
+  teamVolunteers,
   teamDonors,
   neighbourhoodVolunteers,
   neighbourhoodDonors,
@@ -17,7 +18,7 @@ export const router = express.Router();
 
 router.use("/v1/resources/healthcheck", healthCheck);
 
-//router.get("/v1/teams/:team/volunteers", neighbourhoodVolunteers);
+router.get("/v1/teams/:team/volunteers", teamVolunteers);
 router.get("/v1/teams/:team/donors", teamDonors);
 router.get("/v1/teams/:team/food-drives", teamFoodDrives);
 

@@ -8,8 +8,9 @@ import {
     neighbourhoodVolunteersLogic, 
     neighbourhoodDonorsLogic,
     neighbourhoodDrivesLogic,
-    teamDonorsLogic,
     getTokenLogic, 
+    teamVolunteersLogic,
+    teamDonorsLogic,
     teamFoodDrivesLogic,
     getLoggedInLogic, 
     updateVolunteerNotesLogic, 
@@ -102,6 +103,30 @@ const getDataForNeigborhood = async (req: Request, res: Response, logic) => {
     const response = await logic(neighbourhood);
     return sendResponse(res, response);
 }
+
+export const teamVolunteers = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        team: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if(schemaError){
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { team } = parsedParams;
+    const response = await teamVolunteersLogic(team);
+    return sendResponse(res, response);
+};
 
 export const teamDonors = async (req: Request, res: Response) => {
     // define schema shapes
