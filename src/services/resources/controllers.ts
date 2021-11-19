@@ -14,6 +14,7 @@ import {
     teamFoodDrivesLogic,
     getLoggedInLogic, 
     updateVolunteerNotesLogic, 
+    updateVolunteerNotesByTeamLogic,
     logoutLogic 
 } from "./logic";
 
@@ -206,6 +207,42 @@ export const neighbourhoodDonors = async (req: Request, res: Response) => {
 
 export const neighbourhoodDrives = async (req: Request, res: Response) => {
     return await getDataForNeigborhood(req, res, neighbourhoodDrivesLogic);
+};
+
+export const updateVolunteerNotesByTeam = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        volunteer: Joi.string().required(),
+        team: Joi.string().token().length(17).required(),
+    });
+
+    const bodySchema = Joi.object({
+        fields: Joi.object({
+            notes: Joi.string().allow(""),
+        }).required(),
+    });
+
+    // destructure request
+    const { params, body } = req;
+
+    // test request shape
+    const { value: parsedParams, error: paramsSchemaError } = paramSchema.validate(params);
+    const { value: parsedBody, error: bodySchemaError } = bodySchema.validate(body);
+
+    // if there is a schema issue, respond with 400
+    if (paramsSchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    } else if (bodySchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { volunteer, team } = parsedParams;    
+    const fields: IUpdateFields = parsedBody.fields;
+    const response = await updateVolunteerNotesByTeamLogic(team, volunteer, fields);
+    return sendResponse(res, response);
 };
 
 export const updateVolunteerNotes = async (req: Request, res: Response) => {
