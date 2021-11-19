@@ -8,11 +8,13 @@ import {
     neighbourhoodVolunteersLogic, 
     neighbourhoodDonorsLogic,
     neighbourhoodDrivesLogic,
-    teamDonorsLogic,
     getTokenLogic, 
+    teamVolunteersLogic,
+    teamDonorsLogic,
     teamFoodDrivesLogic,
     getLoggedInLogic, 
     updateVolunteerNotesLogic, 
+    updateVolunteerNotesByTeamLogic,
     logoutLogic 
 } from "./logic";
 
@@ -103,6 +105,30 @@ const getDataForNeigborhood = async (req: Request, res: Response, logic) => {
     return sendResponse(res, response);
 }
 
+export const teamVolunteers = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        team: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if(schemaError){
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { team } = parsedParams;
+    const response = await teamVolunteersLogic(team);
+    return sendResponse(res, response);
+};
+
 export const teamDonors = async (req: Request, res: Response) => {
     // define schema shapes
     const paramSchema = Joi.object({
@@ -181,6 +207,42 @@ export const neighbourhoodDonors = async (req: Request, res: Response) => {
 
 export const neighbourhoodDrives = async (req: Request, res: Response) => {
     return await getDataForNeigborhood(req, res, neighbourhoodDrivesLogic);
+};
+
+export const updateVolunteerNotesByTeam = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        volunteer: Joi.string().required(),
+        team: Joi.string().token().length(17).required(),
+    });
+
+    const bodySchema = Joi.object({
+        fields: Joi.object({
+            notes: Joi.string().allow(""),
+        }).required(),
+    });
+
+    // destructure request
+    const { params, body } = req;
+
+    // test request shape
+    const { value: parsedParams, error: paramsSchemaError } = paramSchema.validate(params);
+    const { value: parsedBody, error: bodySchemaError } = bodySchema.validate(body);
+
+    // if there is a schema issue, respond with 400
+    if (paramsSchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    } else if (bodySchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { volunteer, team } = parsedParams;    
+    const fields: IUpdateFields = parsedBody.fields;
+    const response = await updateVolunteerNotesByTeamLogic(team, volunteer, fields);
+    return sendResponse(res, response);
 };
 
 export const updateVolunteerNotes = async (req: Request, res: Response) => {

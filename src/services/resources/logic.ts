@@ -6,6 +6,7 @@ import { resourceNotFoundError, serverError, authenticationFailedError } from ".
 import { findCaptainByEmail, getCaptain } from "../../models/captain";
 import { findDonorsByTeam } from "../../models/donor";
 import { findFoodDrivesByTeam } from "../../models/foodDrives";
+import { findVolunteersByTeam } from "../../models/volunteer";
 
 const { accessTokenSecret, local } = process.env;
 const TOKEN_EXPIRY_TIME = 8 * 60 * 60; // 8hr in seconds
@@ -118,6 +119,14 @@ export const neighbourhoodDonorsLogic = async (neighbourhood: string): Promise<I
     return response;
 };
 
+export const teamVolunteersLogic = async (team: string): Promise<ILogicResponse> => {
+    const volunteers = await findVolunteersByTeam(team);
+    const response: ILogicResponse = {
+        responseBody: { message: volunteers },
+        statusCode: 200,
+    };
+    return response;
+};
 
 export const teamFoodDrivesLogic = async (team: string): Promise<ILogicResponse> => {
     const foodDrives = await findFoodDrivesByTeam(team);
@@ -144,6 +153,30 @@ export const neighbourhoodDrivesLogic = async (neighbourhood: string): Promise<I
     }
     const response: ILogicResponse = {
         responseBody: { message: drives },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const updateVolunteerNotesByTeamLogic = async (team: string, userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
+    const vol: any = await read("Volunteers", userId);
+
+    // if captain requesting the change isn't the vol's assigned neighboorhood team, then send auth eror
+    if (!(vol.team[0] === team)) {
+        return authenticationFailedError();
+    }
+
+    const updatedVol = await update("Volunteers", [
+        {
+            "id": userId,
+            "fields": fields
+        }
+    ]);
+    if (updatedVol === undefined) {
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: updatedVol },
         statusCode: 200,
     };
     return response;
