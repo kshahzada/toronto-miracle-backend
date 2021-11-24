@@ -5,13 +5,16 @@ import { ILogicResponse, IUpdateFields } from "../../types/types";
 import { IErrorResponse } from "../../types/errors";
 import { 
     healthCheckLogic, 
-    captainVolunteersLogic, 
     neighbourhoodVolunteersLogic, 
     neighbourhoodDonorsLogic,
     neighbourhoodDrivesLogic,
     getTokenLogic, 
+    teamVolunteersLogic,
+    teamDonorsLogic,
+    teamFoodDrivesLogic,
     getLoggedInLogic, 
     updateVolunteerNotesLogic, 
+    updateVolunteerNotesByTeamLogic,
     logoutLogic 
 } from "./logic";
 
@@ -77,30 +80,6 @@ export const healthCheck = async (req: Request, res: Response) => {
     return sendResponse(res, response);
 };
 
-export const captainVolunteers = async (req: Request, res: Response) => {
-    // define schema shapes
-    const paramSchema = Joi.object({
-        captain_id: Joi.string().token().length(17).required(),
-    });
-
-    // destructure request
-    const { params } = req;
-
-    // test request shape
-    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
-
-    // if there is a schema issue, respond with 400
-    if(schemaError){
-        const response = badRequestError(schemaError);
-        return sendResponse(res, response);
-    }
-
-    // otherwise complete request
-    const { captain_id } = parsedParams;
-    const response = await captainVolunteersLogic(captain_id);
-    return sendResponse(res, response);
-};
-
 // TODO:- we need to define what "logic" is as a template otherwise this is a dangerous pattern IMO
 const getDataForNeigborhood = async (req: Request, res: Response, logic) => {
     // define schema shapes
@@ -125,6 +104,78 @@ const getDataForNeigborhood = async (req: Request, res: Response, logic) => {
     const response = await logic(neighbourhood);
     return sendResponse(res, response);
 }
+
+export const teamVolunteers = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        team: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if(schemaError){
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { team } = parsedParams;
+    const response = await teamVolunteersLogic(team);
+    return sendResponse(res, response);
+};
+
+export const teamDonors = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        team: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if(schemaError){
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { team } = parsedParams;
+    const response = await teamDonorsLogic(team);
+    return sendResponse(res, response);
+};
+
+export const teamFoodDrives = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        team: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if(schemaError){
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { team } = parsedParams;
+    const response = await teamFoodDrivesLogic(team);
+    return sendResponse(res, response);
+};
 
 export const neighbourhoodVolunteers = async (req: Request, res: Response) => {
     // define schema shapes
@@ -156,6 +207,42 @@ export const neighbourhoodDonors = async (req: Request, res: Response) => {
 
 export const neighbourhoodDrives = async (req: Request, res: Response) => {
     return await getDataForNeigborhood(req, res, neighbourhoodDrivesLogic);
+};
+
+export const updateVolunteerNotesByTeam = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        volunteer: Joi.string().required(),
+        team: Joi.string().token().length(17).required(),
+    });
+
+    const bodySchema = Joi.object({
+        fields: Joi.object({
+            notes: Joi.string().allow(""),
+        }).required(),
+    });
+
+    // destructure request
+    const { params, body } = req;
+
+    // test request shape
+    const { value: parsedParams, error: paramsSchemaError } = paramSchema.validate(params);
+    const { value: parsedBody, error: bodySchemaError } = bodySchema.validate(body);
+
+    // if there is a schema issue, respond with 400
+    if (paramsSchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    } else if (bodySchemaError) {
+        const response = badRequestError(paramsSchemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { volunteer, team } = parsedParams;    
+    const fields: IUpdateFields = parsedBody.fields;
+    const response = await updateVolunteerNotesByTeamLogic(team, volunteer, fields);
+    return sendResponse(res, response);
 };
 
 export const updateVolunteerNotes = async (req: Request, res: Response) => {

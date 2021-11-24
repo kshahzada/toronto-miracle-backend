@@ -1,33 +1,32 @@
 import { find, read, update } from "../../integrations/airtable";
 import jwt from 'jsonwebtoken';
 import { IErrorResponse } from "../../types/errors";
-import { ILogicResponse, ICookie, IUpdateFields } from "../../types/types";
+import { ILogicResponse, ICookie, IUpdateFields, ICaptain } from "../../types/types";
 import { resourceNotFoundError, serverError, authenticationFailedError } from "../../errors";
+import { findCaptainByEmail, getCaptain } from "../../models/captain";
+import { findDonorsByTeam } from "../../models/donor";
+import { findFoodDrivesByTeam } from "../../models/foodDrives";
+import { findVolunteersByTeam } from "../../models/volunteer";
 
 const { accessTokenSecret, local } = process.env;
-const TOKEN_EXPIRY_TIME = 8*60*60; // 8hr in seconds
+const TOKEN_EXPIRY_TIME = 8 * 60 * 60; // 8hr in seconds
 const DEFAULT_AREA_CODE = "1";
 
-export const getLoggedInLogic = async (userId: string) : Promise<ILogicResponse | IErrorResponse> => {
-    const rawUser: any = await read("contacts", userId); // TODO :- need to actually define the type here
-    const user = {
-        id: userId,
-        email: rawUser.Email,
-        firstName: rawUser["First Name"],
-        lastName: rawUser["Last Name"],
-        phoneNumber: rawUser["Phone Number"],
-        isCaptain: rawUser.isCaptain,
-        neighbourhoods: rawUser.neighbourhood
-    };
+export const getLoggedInLogic = async (userId: string): Promise<ILogicResponse | IErrorResponse> => {
+    const captain: ICaptain | undefined = await getCaptain(userId);
+
+    if (captain === undefined){
+        return authenticationFailedError();
+    }
 
     const response: ILogicResponse = {
-        responseBody: user,
+        responseBody: captain,
         statusCode: 200,
     };
     return response;
 };
 
-export const logoutLogic = async () : Promise<ILogicResponse | IErrorResponse> => {
+export const logoutLogic = async (): Promise<ILogicResponse | IErrorResponse> => {
     const cookies: ICookie[] = [
         {
             name: "id_token",
@@ -35,7 +34,7 @@ export const logoutLogic = async () : Promise<ILogicResponse | IErrorResponse> =
             options: {}
         },
     ];
-    
+
     const response: ILogicResponse = {
         cookies,
         statusCode: 200,
@@ -45,38 +44,25 @@ export const logoutLogic = async () : Promise<ILogicResponse | IErrorResponse> =
 
 export const getTokenLogic = async (email: string, phoneNumber: string, hostname: string): Promise<ILogicResponse | IErrorResponse> => {
     // check if valid user
-    const matchingUsers: any = await find("contacts", `email=\'${email.toLowerCase()}\'`, ["Email", "Phone Number", "First Name", "Last Name", "isCaptain", "neighbourhood"]); // TODO -: this is bad, we should be loading it into a type
-    // if more than one user, send server error
-    if(matchingUsers.length > 1){
-        return serverError("Multiple users found");
-    }
+    const matchingUser: ICaptain | undefined = await findCaptainByEmail(email);
 
     // if no user is found, send auth error
-    if(matchingUsers.length !== 1){
+    if (matchingUser === undefined) {
         return authenticationFailedError();
     }
 
-    // need to add db mapping function to integration
-    const matchedUser = {
-        id: matchingUsers[0].id,
-        email: matchingUsers[0].Email,
-        firstName: matchingUsers[0]["First Name"],
-        lastName: matchingUsers[0]["Last Name"],
-        phoneNumber: matchingUsers[0]["Phone Number"],
-        isCaptain: matchingUsers[0].isCaptain,
-        neighbourhoods: matchingUsers[0].neighbourhood
-    };
-
-    matchedUser.phoneNumber = matchedUser.phoneNumber.replace(/\D/g,'')
-    matchedUser.phoneNumber = matchedUser.phoneNumber.length < 11 ? DEFAULT_AREA_CODE + matchedUser.phoneNumber : matchedUser.phoneNumber;
-    
-    // if real user doesn't have a matching phone number, send auth error (EXTRACTS JUST NUMBERS FROM PHONE NUMBER STRING FROM THE DB)
-    if(matchedUser.phoneNumber !== phoneNumber || matchedUser.isCaptain !== true){
+    // if real user doesn't have a matching phone number, send auth error
+    if (matchingUser.phoneNumber !== phoneNumber) {
         return authenticationFailedError();
     }
 
     // generate access token
-    const accessToken = jwt.sign({ userId: matchedUser.id, neighbourhoods: matchedUser.neighbourhoods, team: [], role: "captain" }, accessTokenSecret, {expiresIn: TOKEN_EXPIRY_TIME});
+    const accessToken = jwt.sign({
+        userId: matchingUser.userId,
+        neighbourhoods: matchingUser.neighbourhoods,
+        team: matchingUser.team,
+        role: "captain",
+    }, accessTokenSecret, { expiresIn: TOKEN_EXPIRY_TIME });
 
     // if real user - send success + set auth cookie
     const cookies: ICookie[] = [
@@ -94,7 +80,7 @@ export const getTokenLogic = async (email: string, phoneNumber: string, hostname
 
 
     const response: ILogicResponse = {
-        responseBody: matchedUser,
+        responseBody: matchingUser,
         cookies,
         statusCode: 200,
     };
@@ -109,22 +95,9 @@ export const healthCheckLogic = async (): Promise<ILogicResponse> => {
     return response;
 };
 
-export const captainVolunteersLogic = async (captain_id: string): Promise<ILogicResponse> => {
-    // empty filterByFormula for now, replace with captain_id once ready
-    const volunteers = await find("Contacts", "", ["First Name", "Last Name", "Email", "Phone Number"] , [], "Volunteers");
-    if (volunteers === undefined){
-        return resourceNotFoundError();
-    }
-    const response: ILogicResponse = {
-        responseBody: { message: volunteers },
-        statusCode: 200,
-    };
-    return response;
-};
-
 export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
-    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number", "Vehicle Access", "Waiver", "captainsNotes"] , [], "Volunteers");
-    if (volunteers === undefined){
+    const volunteers = await find("Contacts", `FIND('${neighbourhood}', neighbourhood)>0`, ["First Name", "Last Name", "Email", "Phone Number", "Vehicle Access", "Waiver", "captainsNotes"], [], "Volunteers");
+    if (volunteers === undefined) {
         return resourceNotFoundError();
     }
     const response: ILogicResponse = {
@@ -135,8 +108,8 @@ export const neighbourhoodVolunteersLogic = async (neighbourhood: string): Promi
 };
 
 export const neighbourhoodDonorsLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
-    const donors = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="It'll just be me")`, ["address", "postal code", "pickup notes"] , [], "");
-    if (donors === undefined){
+    const donors = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="It'll just be me")`, ["address", "postal code", "pickup notes"], [], "");
+    if (donors === undefined) {
         return resourceNotFoundError();
     }
     const response: ILogicResponse = {
@@ -146,9 +119,36 @@ export const neighbourhoodDonorsLogic = async (neighbourhood: string): Promise<I
     return response;
 };
 
+export const teamVolunteersLogic = async (team: string): Promise<ILogicResponse> => {
+    const volunteers = await findVolunteersByTeam(team);
+    const response: ILogicResponse = {
+        responseBody: { message: volunteers },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const teamFoodDrivesLogic = async (team: string): Promise<ILogicResponse> => {
+    const foodDrives = await findFoodDrivesByTeam(team);
+    const response: ILogicResponse = {
+        responseBody: { message: foodDrives },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const teamDonorsLogic = async (team: string): Promise<ILogicResponse> => {
+    const donors = await findDonorsByTeam(team);
+    const response: ILogicResponse = {
+        responseBody: { message: donors },
+        statusCode: 200,
+    };
+    return response;
+};
+
 export const neighbourhoodDrivesLogic = async (neighbourhood: string): Promise<ILogicResponse> => {
-    const drives = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="I'll be running a larger food drive")`, ["email", "first name", "address", "postal code", "pickup notes"] , [], "");
-    if (drives === undefined){
+    const drives = await find("Donations", `AND(FIND('${neighbourhood}', neighbourhood_id)>0, food_drive="I'll be running a larger food drive")`, ["email", "first name", "address", "postal code", "pickup notes"], [], "");
+    if (drives === undefined) {
         return resourceNotFoundError();
     }
     const response: ILogicResponse = {
@@ -158,11 +158,35 @@ export const neighbourhoodDrivesLogic = async (neighbourhood: string): Promise<I
     return response;
 };
 
+export const updateVolunteerNotesByTeamLogic = async (team: string, userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
+    const vol: any = await read("Volunteers", userId);
+
+    // if captain requesting the change isn't the vol's assigned neighboorhood team, then send auth eror
+    if (!(vol.team[0] === team)) {
+        return authenticationFailedError();
+    }
+
+    const updatedVol = await update("Volunteers", [
+        {
+            "id": userId,
+            "fields": fields
+        }
+    ]);
+    if (updatedVol === undefined) {
+        return resourceNotFoundError();
+    }
+    const response: ILogicResponse = {
+        responseBody: { message: updatedVol },
+        statusCode: 200,
+    };
+    return response;
+};
+
 export const updateVolunteerNotesLogic = async (captainNeighborhood: string[], userId: string, fields: IUpdateFields): Promise<ILogicResponse> => {
-    const vol:any = await read("contacts", userId);
+    const vol: any = await read("contacts", userId);
 
     // if captain requesting the change isn't the vol's assigned neighboorhood captain, then send auth eror
-    if(!(vol.neighbourhood[0] === captainNeighborhood)){
+    if (!(vol.neighbourhood[0] === captainNeighborhood)) {
         return authenticationFailedError();
     }
 
@@ -172,7 +196,7 @@ export const updateVolunteerNotesLogic = async (captainNeighborhood: string[], u
             "fields": fields
         }
     ]);
-    if (updatedVol === undefined){
+    if (updatedVol === undefined) {
         return resourceNotFoundError();
     }
     const response: ILogicResponse = {

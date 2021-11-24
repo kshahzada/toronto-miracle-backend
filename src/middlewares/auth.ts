@@ -24,6 +24,24 @@ auth.use("/v1/neighbourhoods/:neighbourhood/*", jwt({
     next();
 });
 
+// any team endpoint must have the team contained in team field in the JWT
+
+auth.use("/v1/teams/:team/*", jwt({
+    secret: accessTokenSecret,
+    algorithms: ['HS256'],
+    getToken: req => req.cookies.id_token,
+}), (req, res, next) => {
+    
+    const { team: reqTeam } = req.params;
+    const { team: userTeam } = req.user;
+
+    if (reqTeam !== userTeam) {
+        res.status(401).json({ error: "invalid token" });
+        return res.send();
+    }
+    next();
+});
+
 // any captain endpoint must have the userid in the JWT equal to the captain_id that is requested
 auth.use("/v1/resources/captains/:captainId*", jwt({
     secret: accessTokenSecret,
