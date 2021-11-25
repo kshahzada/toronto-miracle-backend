@@ -10,7 +10,7 @@ const neighourhoodDBSchema = Joi.object({
     "Number of Assigned Teams": Joi.number().required(),
     "Number of Volunteers": Joi.number().required(),
     "Number of Donations": Joi.number().required(),
-    "Assigned Hub": Joi.string().required(),
+    "Assigned Hub": Joi.array().items(Joi.string()).required(),
 });
 
 const neighbourhoodFields = [
@@ -34,7 +34,7 @@ const transformFromDBToNeigbourhoodModel = (inputNeighbourhood: any): INeighbour
         numTeams: rawNeighbourhood["Number of Assigned Teams"],
         numVols: rawNeighbourhood["Number of Volunteers"],
         numDonations: rawNeighbourhood["Number of Donations"],
-        hub: rawNeighbourhood["Assigned Hub"],
+        hub: rawNeighbourhood["Assigned Hub"][0],
     };
 }
 
@@ -42,6 +42,7 @@ export const findNeighbourhoodsByTeam = async (team: string): Promise<INeighbour
     const neighbourhoods = await find("Neighbourhoods",
         `FIND('${team}', team_id)>0`,
         neighbourhoodFields, [], "Summary");
+        console.log(neighbourhoods)
 
     const foodDrives = neighbourhoods.map(rawNeighbourhood => transformFromDBToNeigbourhoodModel(rawNeighbourhood));
     return foodDrives;
