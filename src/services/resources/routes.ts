@@ -4,6 +4,7 @@ import {
   healthCheck,
   teamVolunteers,
   teamDonors,
+  teamHubs,
   neighbourhoodVolunteers,
   neighbourhoodDonors,
   neighbourhoodDrives,
@@ -23,6 +24,7 @@ router.get("/v1/teams/:team/volunteers", teamVolunteers);
 router.post("/v1/teams/:team/volunteers/:volunteer/updateNotes", updateVolunteerNotesByTeam);
 router.get("/v1/teams/:team/donors", teamDonors);
 router.get("/v1/teams/:team/food-drives", teamFoodDrives);
+router.get("/v1/teams/:team/hubs", teamHubs);
 
 router.get("/v1/auth/me", getLoggedIn);
 router.post("/v1/auth/authenticate", authenticate);

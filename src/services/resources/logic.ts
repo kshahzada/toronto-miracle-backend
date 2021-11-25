@@ -7,6 +7,7 @@ import { findCaptainByEmail, getCaptain } from "../../models/captain";
 import { findDonorsByTeam } from "../../models/donor";
 import { findFoodDrivesByTeam } from "../../models/foodDrives";
 import { findVolunteersByTeam } from "../../models/volunteer";
+import { findNeighbourhoodsByTeam } from "../../models/neigbourhood";
 
 const { accessTokenSecret, local } = process.env;
 const TOKEN_EXPIRY_TIME = 8 * 60 * 60; // 8hr in seconds
@@ -139,6 +140,15 @@ export const teamFoodDrivesLogic = async (team: string): Promise<ILogicResponse>
 
 export const teamDonorsLogic = async (team: string): Promise<ILogicResponse> => {
     const donors = await findDonorsByTeam(team);
+    const response: ILogicResponse = {
+        responseBody: { message: donors },
+        statusCode: 200,
+    };
+    return response;
+};
+
+export const teamNeighbourhoodsLogic = async (team: string): Promise<ILogicResponse> => {
+    const donors = await findNeighbourhoodsByTeam(team);
     const response: ILogicResponse = {
         responseBody: { message: donors },
         statusCode: 200,
