@@ -42,7 +42,6 @@ export const findNeighbourhoodsByTeam = async (team: string): Promise<INeighbour
     const neighbourhoods = await find("Neighbourhoods",
         `FIND('${team}', team_id)>0`,
         neighbourhoodFields, [], "Summary");
-        console.log(neighbourhoods)
 
     const foodDrives = neighbourhoods.map(rawNeighbourhood => transformFromDBToNeigbourhoodModel(rawNeighbourhood));
     return foodDrives;
