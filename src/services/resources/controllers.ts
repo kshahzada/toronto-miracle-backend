@@ -12,6 +12,7 @@ import {
     teamVolunteersLogic,
     teamDonorsLogic,
     teamFoodDrivesLogic,
+    teamNeighbourhoodsLogic,
     getLoggedInLogic, 
     updateVolunteerNotesLogic, 
     updateVolunteerNotesByTeamLogic,
@@ -174,6 +175,30 @@ export const teamFoodDrives = async (req: Request, res: Response) => {
     // otherwise complete request
     const { team } = parsedParams;
     const response = await teamFoodDrivesLogic(team);
+    return sendResponse(res, response);
+};
+
+export const teamHubs = async (req: Request, res: Response) => {
+    // define schema shapes
+    const paramSchema = Joi.object({
+        team: Joi.string().token().length(17).required(),
+    });
+
+    // destructure request
+    const { params } = req;
+
+    // test request shape
+    const { value: parsedParams, error: schemaError } = paramSchema.validate(params);
+
+    // if there is a schema issue, respond with 400
+    if(schemaError){
+        const response = badRequestError(schemaError);
+        return sendResponse(res, response);
+    }
+
+    // otherwise complete request
+    const { team } = parsedParams;
+    const response = await teamNeighbourhoodsLogic(team);
     return sendResponse(res, response);
 };
 

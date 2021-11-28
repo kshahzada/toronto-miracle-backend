@@ -65,3 +65,13 @@ export interface IFoodDrive {
     team: string;
     neighbourhood: string;
 }
+
+export interface INeighbourhood {
+    neighbourhoodId: string,
+    name: string,
+    captains: string[],
+    numTeams: string,
+    numVols: string,
+    numDonations: string,
+    hub: string[],
+}
